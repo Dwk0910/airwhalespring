@@ -16,13 +16,14 @@ import java.util.Map;
 @RestController
 @CrossOrigin(origins = "*")
 public class Controller {
-    public static boolean checkPassword(Map<String, Object> post) {
+    public static boolean checkIsValid(Map<String, Object> post) {
+        if (post.get("ctpd") == null) return false;
         return post.get("ctpd").equals("AiRwHaLeBaCkEnDsPrInG");
     }
 
     @RequestMapping("/login")
     public Object login(@RequestParam Map<String, Object> post) {
-        if (!checkPassword(post)) return null;
+        if (!checkIsValid(post)) return null;
         try {
             String id = post.get("id").toString();
             String pwd = post.get("pwd").toString();
@@ -44,6 +45,7 @@ public class Controller {
             JSONObject db = (JSONObject) parser.parse(reader);
             JSONObject user = (JSONObject) db.get(id);
 
+            if (user == null) return false;
             return user.get("password").equals(pwd);
         } catch (Exception e) {
             e.printStackTrace();
