@@ -11,25 +11,26 @@ import org.springframework.web.bind.annotation.RestController;
 import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
+import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "*")
 public class Controller {
-    public static boolean checkIsValid(Map<String, Object> post) {
-        if (post.get("ctpd") == null) return false;
-        return post.get("ctpd").equals("AiRwHaLeBaCkEnDsPrInG");
+    public static JSONParser parser = new JSONParser();
+    public static String currentPath = System.getProperty("user.dir");
+    public static File dbf = new File(currentPath + File.separator + "database.db");
+    public static boolean checkIsInvalid(Map<String, Object> post) {
+        if (post.get("ctpd") == null) return true;
+        return !post.get("ctpd").equals("AiRwHaLeBaCkEnDsPrInG");
     }
 
     @RequestMapping("/login")
     public Object login(@RequestParam Map<String, Object> post) {
-        if (!checkIsValid(post)) return null;
+        if (checkIsInvalid(post)) return "KEY is invaild";
         try {
             String id = post.get("id").toString();
             String pwd = post.get("pwd").toString();
-
-            String currentPath = System.getProperty("user.dir");
-            File dbf = new File(currentPath + File.separator + "database.db");
 
             if (!dbf.exists()) {
                 if (!dbf.createNewFile()) throw new Exception();
@@ -49,8 +50,40 @@ public class Controller {
             return user.get("password").equals(pwd);
         } catch (Exception e) {
             e.printStackTrace();
+            return "ERROR";
         }
+    }
 
-        return null;
+    @RequestMapping("/signup")
+    public Object signup(@RequestParam Map<String, Object> post) {
+        if (checkIsInvalid(post)) return "KEY is envalid";
+        try {
+            String id = post.get("id").toString();
+            String pwd = post.get("pwd").toString();
+            String email = post.get("email").toString();
+            String name = post.get("name").toString();
+
+            JSONObject old = (JSONObject) parser.parse(new FileReader(dbf));
+
+            HashMap<String, Object> newUser = new HashMap<>();
+            newUser.put("id", id);
+            newUser.put("pwd", pwd);
+            newUser.put("name", name);
+            newUser.put("email", email);
+
+            HashMap<Object, Object> newMap = new HashMap<>();
+            for (Object key : old.keySet()) newMap.put(key, old.get(key));
+            newMap.put(id, newUser);
+
+            JSONObject newObj = new JSONObject(newMap);
+            FileWriter writer = new FileWriter(dbf);
+            writer.write(newObj.toJSONString());
+            writer.flush();
+            writer.close();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }
