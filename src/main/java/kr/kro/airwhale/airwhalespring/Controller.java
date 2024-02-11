@@ -65,6 +65,14 @@ public class Controller {
             String email = post.get("email").toString();
             String name = post.get("name").toString();
 
+            if (!dbf.exists()) {
+                if (!dbf.createNewFile()) throw new Exception();
+                FileWriter writer = new FileWriter(dbf);
+                writer.write("{}");
+                writer.flush();
+                writer.close();
+            }
+
             JSONObject old = (JSONObject) parser.parse(new FileReader(dbf));
 
             for (Object key : old.keySet()) {
