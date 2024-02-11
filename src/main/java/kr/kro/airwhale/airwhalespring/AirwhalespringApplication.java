@@ -8,5 +8,4 @@ public class AirwhalespringApplication {
     public static void main(String[] args) {
         SpringApplication.run(AirwhalespringApplication.class, args);
     }
-
 }
