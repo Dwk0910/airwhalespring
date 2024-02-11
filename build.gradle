@@ -5,10 +5,22 @@ plugins {
 }
 
 group = 'kr.kro.airwhale'
-version = '0.0.1-SNAPSHOT'
+version = '0.0.1'
 
 java {
     sourceCompatibility = '17'
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'kr.kro.airwhale.AirwhalespringApplication'
+    }
+
+    from {
+        configurations.runtimeClasspath.collect {it.isDirectory() ? it : zipTree(it)}
+    }
+
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
 }
 
 repositories {
