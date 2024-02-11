@@ -57,7 +57,6 @@ public class Controller {
     @RequestMapping("/signup")
     public Object signup(@RequestParam Map<String, Object> post) {
         HashMap<String, String> status = new HashMap<>();
-
         if (checkIsInvalid(post)) return "KEY is envalid";
         try {
             String id = post.get("id").toString();
