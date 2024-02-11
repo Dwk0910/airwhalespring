@@ -75,7 +75,7 @@ public class Controller {
             JSONObject old = (JSONObject) parser.parse(new FileReader(dbf));
 
             for (Object key : old.keySet()) {
-                if (key == id) {
+                if (key.equals(id)) {
                     status.put("status", "idexist");
                     return new JSONObject(status);
                 }
