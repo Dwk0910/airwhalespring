@@ -56,6 +56,7 @@ public class Controller {
 
     @RequestMapping("/signup")
     public Object signup(@RequestParam Map<String, Object> post) {
+        HashMap<String, String> status = new HashMap<>();
         if (checkIsInvalid(post)) return "KEY is envalid";
         try {
             String id = post.get("id").toString();
@@ -63,7 +64,22 @@ public class Controller {
             String email = post.get("email").toString();
             String name = post.get("name").toString();
 
+            if (!dbf.exists()) {
+                if (!dbf.createNewFile()) throw new Exception();
+                FileWriter writer = new FileWriter(dbf);
+                writer.write("{}");
+                writer.flush();
+                writer.close();
+            }
+
             JSONObject old = (JSONObject) parser.parse(new FileReader(dbf));
+
+            for (Object key : old.keySet()) {
+                if (key.equals(id)) {
+                    status.put("status", "idexist");
+                    return new JSONObject(status);
+                }
+            }
 
             HashMap<String, Object> newUser = new HashMap<>();
             newUser.put("id", id);
@@ -80,10 +96,13 @@ public class Controller {
             writer.write(newObj.toJSONString());
             writer.flush();
             writer.close();
-            return true;
+
+            status.put("status", "success");
+            return new JSONObject(status);
         } catch (Exception e) {
             e.printStackTrace();
-            return false;
+            status.put("status", "fail");
+            return new JSONObject(status);
         }
     }
 }
